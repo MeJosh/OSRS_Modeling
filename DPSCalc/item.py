@@ -71,6 +71,7 @@ class ItemSet():
         self.gloves = gloves
         self.cape = cape
         self.attackStyle = attackStyle
+        self.statsFromStyles = {'Slash': self.getSlashAccuracy, 'Stab': self.getStabAccuracy, 'Crush': self.getCrushAccuracy, 'Mage': self.getMageAccuracy, 'Ranged': self.getRangedAccuracy}
         self.gear = [body, legs, ring, necklace, boots, ammo, helm, weapon, offhand, gloves, cape]
 
 
@@ -87,57 +88,67 @@ class ItemSet():
                  f'Boots: {self.boots}\n' \
                  f'Ring: {self.ring}\n'
         return output
-                      
+                 
+    def getAccuracyForCurrentStyle(self):
+        return self.statsFromStyles[self.attackStyle[1]]()     
 
     def getMageAccuracy(self):
         accuracy = 0
         for i in self.gear:
-            accuracy += i.getMagicAccuracy()
+            if i:
+                accuracy += i.getMagicAccuracy()
 
         return accuracy
     
-    def getRangeAccuracy(self):
+    def getRangedAccuracy(self):
         accuracy = 0
         for i in self.gear:
-            accuracy += i.getRangeAccuracy()
+            if i:
+                accuracy += i.getRangeAccuracy()
         return accuracy
 
     def getStabAccuracy(self):
         accuracy = 0
         for i in self.gear:
-            accuracy += i.getStabAccuracy()
+            if i:
+                accuracy += i.getStabAccuracy()
         return accuracy
 
     def getSlashAccuracy(self):
         accuracy = 0
         for i in self.gear:
-            accuracy += i.getSlashAccuracy()
+            if i:
+                accuracy += i.getSlashAccuracy()
         return accuracy
 
     def getCrushAccuracy(self):
         accuracy = 0
         for i in self.gear:
-            accuracy += i.getCrushAccuracy()
+            if i:
+                accuracy += i.getCrushAccuracy()
         return accuracy
 
     def getMeleeStrength(self):
         strength = 0
         for i in self.gear:
-            strength += i.getMeleeStrength()
+            if i:
+                strength += i.getMeleeStrength()
 
         return strength
 
     def getRangeStrength(self):
         strength = 0
         for i in self.gear:
-            strength += i.getRangeStrength()
+            if i:
+                strength += i.getRangeStrength()
 
         return strength
 
     def getMagicStrength(self):
         strength = 0
         for i in self.gear:
-            strength += i.getMagicStrength()
+            if i:
+                strength += i.getMagicStrength()
 
         return strength
 
