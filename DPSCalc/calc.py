@@ -57,19 +57,22 @@ class DPS():
             
             #Checking for void mage accuracy buffs
             self.voidMageAccuracyCheck(i)
+            print (self.attackRolls)
             
             #Applying effective level booost from attack stance
             self.addStanceAttackBonus(i)
+            print (self.attackRolls)
             
             self.otherVoidAccuracyCheck(i)
+            print (self.attackRolls)
             
             #Calculate initial rolls, before equipment modifiers
             self.factorInOffensiveGearBonuses(i)
             
+            print (self.attackRolls)
             if (self.gearsets[i].weapon.name in self.weaponAccuracyRollModifiers):
-                print (self.gearsets[i].weapon.name)
                 self.weaponAccuracyRollModifiers[self.gearsets[i].weapon.name](i)
-            
+            print (self.attackRolls)
             #salve
             self.salveModifier(i)
             

@@ -58,7 +58,7 @@ kq = NPC(['Kalphite queen', 0, 0, 0, 255, 300, 300, 300, 150, 1, 4, ['Stab', 'Ra
 #Player
 maxedPlayer = Player(99.0, 99.0, 99.0, 99.0, 99.0, 99.0, 99.0)
 
-test = DPS(maxedPlayer, [vorkath, kq], [crystal_with_tbow, lance_with_defender, dhcb_with_salve])
+test = DPS(maxedPlayer, [vorkath, kq], [lance_with_defender])
         
 if __name__ == '__main__':
     unittest.main()
