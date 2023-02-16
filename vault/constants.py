@@ -16,6 +16,26 @@ class GEAR_STATS(StrEnum):
     RANGE_STRENGTH = auto()
     MAGIC_DAMAGE = auto()
     PRAYER_BONUS = auto()
+    
+class ENEMY_STATS(StrEnum):
+    ATTACK = auto()
+    DEFENCE = auto()
+    STRENGTH = auto()
+    MAGIC = auto()
+    RANGED = auto()
+    DEFENSE_STAB = auto()
+    DEFENSE_SLASH = auto()
+    DEFENSE_CRUSH = auto()
+    DEFENSE_MAGIC = auto()
+    DEFENSE_RANGE = auto()
+    MELEE_ACCURACY = auto()
+    MELEE_STRENGTH = auto()
+    RANGE_ACCURACY = auto()
+    RANGE_STRENGTH = auto()
+    MAGIC_DAMAGE = auto()
+    MAGIC_ACCURACY = auto()
+    ATTRIBUTES = auto()
+    ATTACK_SPEED = auto()
 
 class GEAR_SLOTS(StrEnum):
     HEAD = auto()
