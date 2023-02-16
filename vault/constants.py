@@ -36,6 +36,15 @@ class ENEMY_STATS(StrEnum):
     MAGIC_ACCURACY = auto()
     ATTRIBUTES = auto()
     ATTACK_SPEED = auto()
+    
+class PLAYER_STATS(StrEnum):
+    ATTACK = auto()
+    DEFENCE = auto()
+    STRENGTH = auto()
+    RANGE = auto()
+    MAGIC = auto()
+    HITPOINTS = auto()
+    CURRENT_HITPOINTS = auto()
 
 class GEAR_SLOTS(StrEnum):
     HEAD = auto()
