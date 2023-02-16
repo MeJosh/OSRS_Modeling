@@ -1,4 +1,4 @@
-MELEE_ATTACK_STANCE_MODIFIER = {
+ATTACK_STANCE_MODIFIER = {
     'Attack': {
         'Controlled': 9,
         'Accurate': 11,

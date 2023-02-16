@@ -1,7 +1,7 @@
 from player import Player
 from enemy import NPC
 from item import ItemSet
-from constants import MELEE_ATTACK_STANCE_MODIFIER
+from constants import ATTACK_STANCE_MODIFIER
 import numpy as np
 
 class DPS():
@@ -20,6 +20,7 @@ class DPS():
     def calculateAttackRolls(self):
         attackRolls = []
         for set in self.gearsets:
+            #TODO: Raplce instances of 'ranged', 'mage', and ('Stab', 'Slash', 'Crush') with constants everywhere
             if set.attackStyle[1] == 'Ranged':
                 attackRolls.append([self.player.getRangedLevel() for i in range(len(self.enemies))])
             
@@ -31,6 +32,9 @@ class DPS():
         
         
         self.attackRolls = np.array(attackRolls)
+        
+        #Collapse this whole method into an array iterating over a list of function
+        
         
         #Skipping boosts and prayers for now, but leaving a comment here to indicate that
         self.potionBoosts()
@@ -126,11 +130,11 @@ class DPS():
             set = self.gearsets[currSetIndex]
             attackStyle = set.attackStyle
             if attackStyle[1] in ('Stab', 'Slash', 'Crush'):
-                self.attackRolls[currSetIndex, :] += MELEE_ATTACK_STANCE_MODIFIER['Attack'][attackStyle[0]]
+                self.attackRolls[currSetIndex, :] += ATTACK_STANCE_MODIFIER['Attack'][attackStyle[0]]
             elif attackStyle[1] == 'Ranged':
-                self.attackRolls[currSetIndex, :] += MELEE_ATTACK_STANCE_MODIFIER['Ranged'][attackStyle[0]]
+                self.attackRolls[currSetIndex, :] += ATTACK_STANCE_MODIFIER['Ranged'][attackStyle[0]]
             elif attackStyle[1] == 'Mage':
-                self.attackRolls[currSetIndex, :] += MELEE_ATTACK_STANCE_MODIFIER['Mage'][attackStyle[0]]
+                self.attackRolls[currSetIndex, :] += ATTACK_STANCE_MODIFIER['Mage'][attackStyle[0]]
     
     def factorInOffensiveGearBonuses(self):
         for currSetIndex in range(len(self.gearsets)):
