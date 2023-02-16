@@ -1,8 +1,8 @@
-from vault.player import Player
-from vault.monster import Monster
-from vault.gearset import GearSet
-from vault.constants import GEAR_STATS, GEAR_SLOTS
 import numpy as np
+from ...vault.player import Player
+from ...vault.monster import Monster
+from ...vault.gearset import GearSet
+from ...vault.constants import GEAR_STATS, GEAR_SLOTS
 
 ATTACK_STANCE_MODIFIER = {
     'Attack': {
@@ -70,13 +70,13 @@ class DamageCalculator():
         attackRolls = []
         for set in self.gearsets:
             #TODO: Replace instances of 'ranged', 'mage', and ('Stab', 'Slash', 'Crush') with constants everywhere
-            if set.attackStyle[1] == 'Ranged':
+            if set.getWeaponStyle() == 'Ranged':
                 attackRolls.append([self.player.getRangedLevel() for i in range(len(self.enemies))])
             
-            elif set.attackStyle[1] == 'Mage':
+            elif set.getWeaponStyle() == 'Mage':
                 attackRolls.append([self.player.getMageLevel() for i in range(len(self.enemies))])
              
-            elif set.attackStyle[1] in ('Stab', 'Slash', 'Crush'):
+            elif set.getWeaponStyle() in ('Stab', 'Slash', 'Crush'):
                 attackRolls.append([self.player.getAttackLevel()  for i in range(len(self.enemies))])   
         
         

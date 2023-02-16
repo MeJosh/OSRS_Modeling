@@ -7,8 +7,10 @@ from .gearset import GearSet
 
 from .constants import GEAR_STATS, GEAR_SLOTS, SKILL_TYPES, ENEMY_STATS
 
+TEMPLATE_DIR = "/templates"
 ITEM_DIR = "/items"
 MONSTER_DIR = "/monsters"
+PLAYER_DIR = "/players"
 
 class Vault():
     def __init__(self, dirPath) -> None:
@@ -23,11 +25,16 @@ class Vault():
             "name": name,
         }
 
-    def getPlayerTemplate(self, name) -> Player:
-        # TEMPORARY - Not yet implemented
-        return {
-            "name": name,
-        }
+    def getPlayerByTemplate(self, name) -> Player:
+        filename = f"{name.replace(' ', '_').lower()}.json"
+        filepath = f"{self.dirPath}{TEMPLATE_DIR}{PLAYER_DIR}/{filename}"
+        if not os.path.isfile(filepath):
+            print(f"[ERROR] Unable to find file {filepath}")
+            return None
+
+        with open(filepath, 'r') as file:
+            item_data = json.load(file)
+            return Player(item_data)
     
     def getItemByName(self, name) -> Item:
         filename = f"{name.replace(' ', '_').lower()}.json"

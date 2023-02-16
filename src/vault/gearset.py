@@ -36,7 +36,7 @@ class GearSet():
         return self.attack_style['style_type']
     
     def getWeaponStyle(self):
-        return self.attack_style['weapon_style']
+        return self.attack_style
 
     def getAttackStyles(self) -> list:
         return list(self.items[GEAR_SLOTS.WEAPON].getAttackStyles().keys()) if self.items[GEAR_SLOTS.WEAPON] is not None \
