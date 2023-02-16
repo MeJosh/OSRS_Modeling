@@ -1,10 +1,13 @@
+import os.path
+import json
 from item import Item
 from monster import Monster
 from player import Player
 from gear_set import GearSet
 
-import temp_test_data
 from constants import GEAR_STATS, GEAR_SLOTS
+
+ITEM_DIR = "/items"
 
 class Vault():
     def __init__(self, dirPath) -> None:
@@ -26,14 +29,18 @@ class Vault():
         }
     
     def getItemByName(self, name) -> Item:
-        # TEMPORARY - Not yet implemented
-        if name == "Bow of Faerdhinen":
-            return temp_test_data.BOW_OF_FAERDHINEN
-        else:
+        filename = f"{name.replace(' ', '_').lower()}.json"
+        filepath = f"{self.dirPath}{ITEM_DIR}/{filename}"
+        if not os.path.isfile(filepath):
+            print(f"[ERROR] Unable to find file {filepath}")
             return None
 
+        with open(filepath, 'r') as file:
+            item_data = json.load(file)
+            return Item(item_data)
+
 if __name__ == "__main__":
-    vault = Vault("")
+    vault = Vault("./data")
     test_item = vault.getItemByName("Bow of Faerdhinen")
     #assert(test_item.getBonus(GEAR_STATS.ATTACK_RANGE) == 128)
     #print(test_item)
@@ -49,5 +56,5 @@ if __name__ == "__main__":
     print(test_gear.getBonus(GEAR_STATS.ATTACK_RANGE))
     print(test_gear.getAttackSpeed())
     print(test_gear.attack_type)
-    print(test_gear.getAccuracy())
+    print(test_gear.getAttackBonus())
 

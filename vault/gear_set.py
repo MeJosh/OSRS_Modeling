@@ -14,7 +14,7 @@ class GearSet():
         return '\n'.join([f' - {slot}: {"Empty" if not self.items[slot] else str(self.items[slot])}' for slot in GEAR_SLOTS])
 
     def setItemInSlot(self, slot, item) -> bool:
-        # TODO: This should check that the slot is a correct match, and if not return false
+        # TODO: This should check that the slot is a correct match, and if not return error
         
         self.items[slot] = item
 
@@ -30,12 +30,9 @@ class GearSet():
             # if self.attack_style not in valid_styles.keys():
             #    self.attack_style = next(iter(valid_styles))
             #    self.attack_type = valid_styles[self.attack_style]["style_type"]
-
-        return True
         
     def setAttackStyle(self, style) -> bool:
         self.attack_style = style
-        return True
 
     def getAttackStyles(self) -> list:
         return list(self.items[GEAR_SLOTS.WEAPON].getAttackStyles().keys()) if self.items[GEAR_SLOTS.WEAPON] is not None \
@@ -47,8 +44,10 @@ class GearSet():
     def getAttackSpeed(self) -> int:
         return 4 if self.items[GEAR_SLOTS.WEAPON] is None else self.items[GEAR_SLOTS.WEAPON].attack_speed
 
-    def getAccuracy(self) -> float:
-        accuracy_stat = ATTACK_TYPE_TO_BONUS_MAP[self.attack_type]
-        return sum([0 if self.items[slot] is None else self.items[slot].getBonus(accuracy_stat) for slot in GEAR_SLOTS])
+    def getAttackBonus(self, attack_stat=None) -> float:
+        if not attack_stat:
+            attack_stat = ATTACK_TYPE_TO_BONUS_MAP[self.attack_type]
+        
+        return sum([0 if self.items[slot] is None else self.items[slot].getBonus(attack_stat) for slot in GEAR_SLOTS])
 
 
