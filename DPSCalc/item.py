@@ -4,12 +4,19 @@ class Item():
         #I'll likely change this later to have 1 variable / stat, but i cba right now
         #that's a lot of variables to define so im going to be lazy right now
         self.name = item[0]
+        #Stab, slash, crush, mage, and range accuracies in order
         self.attackStats = item[1:6]
+        #Stab, slash, crush, mage, and range defences in order
         self.defenceStats = item[6:11]
+        #melee strength, ranged strength and mage % damage boost
         self.strengthStats = item[11:14]
+        #prayer bonus
         self.prayerBonus = item[14]
+        #information about special attack damage modifiers, attack speeds, etc..
         self.specialInfo = item[15:19]
+        #Mage max hit (for things like trident), based attack speed, and attack style options (may be removed)
         self.attackInfo = item[19:22]
+        #is pickaxe? If so, which for guardians and toa puzzle
         self.miningInfo = item[22]
 
     def getSlashAccuracy(self):
@@ -86,7 +93,15 @@ class ItemSet():
                  f'Legs: {self.legs}\n' \
                  f'Gloves: {self.gloves}\n' \
                  f'Boots: {self.boots}\n' \
-                 f'Ring: {self.ring}\n'
+                 f'Ring: {self.ring}\n' \
+                 f'Stab bonus: {self.getStabAccuracy()}\n' \
+                 f'Crush bonus: {self.getCrushAccuracy()}\n' \
+                 f'Slash bonus: {self.getSlashAccuracy()}\n' \
+                 f'Ranged bonus: {self.getRangedAccuracy()}\n' \
+                 f'Mage bonus: {self.getMageAccuracy()}\n' \
+                 f'Melee strength: {self.getMeleeStrength()}\n' \
+                 f'Ranged Strength: {self.getRangeStrength()}\n' \
+                 f'Mage % damage boost: {self.getMagicStrength()}\n'
         return output
                  
     def getAccuracyForCurrentStyle(self):

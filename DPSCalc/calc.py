@@ -102,8 +102,7 @@ class DPS():
         #keris partisan of breaching
         self.kerisPartisanOfBreachingModifier()
         print(self.attackRolls)
-        
-        
+          
     def prayerBoosts(self):
         pass
     
@@ -118,7 +117,7 @@ class DPS():
             if set.helm == 'Void mage helm' and set.attackStyle[1] == 'Mage':
                 self.attackRolls[currSetIndex, :]*=1.45
                 
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
                 
     def otherVoidAccuracyCheck(self):
         
@@ -131,7 +130,7 @@ class DPS():
             elif set.helm == 'Void ranger helm' and set.attackStyle[1] == 'Ranged':
                 self.attackRolls[currSetIndex, :]*=1.1
                 
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
                  
     def addStanceAttackBonus(self):
         for currSetIndex in range(len(self.gearsets)):
@@ -170,7 +169,7 @@ class DPS():
                 multiplier += 0.1
             print (multiplier)
             self.attackRolls[currSetIndex, :] *= multiplier  
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
                         
     def salveModifier(self):
         for currSetIndex in range(len(self.gearsets)):
@@ -181,7 +180,7 @@ class DPS():
             for currEnemyIndex in range(len(self.enemies)):
                 if 'Undead' in self.enemies[currEnemyIndex].mobTypes:
                     self.attackRolls[currSetIndex, currEnemyIndex] *= 1.2
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
 
     def slayerHelmModifier(self):
         pass
@@ -197,7 +196,7 @@ class DPS():
             for currEnemyIndex in range(len(self.enemies)):
                 if 'Dragon' in self.enemies[currEnemyIndex].mobTypes:
                     self.attackRolls[currSetIndex, currEnemyIndex] *= 1.3
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
     
     def lanceModifier(self):
         for currSetIndex in range(len(self.gearsets)):
@@ -207,7 +206,7 @@ class DPS():
             for currEnemyIndex in range(len(self.enemies)):
                 if 'Dragon' in self.enemies[currEnemyIndex].mobTypes:
                     self.attackRolls[currSetIndex, currEnemyIndex] *= 1.2
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
     
     def wildyWeaponsModifier(self):
         pass
@@ -221,13 +220,12 @@ class DPS():
                 continue
             for currEnemyIndex in range(len(self.enemies)):
                 magicCoeff = 3 * max(self.enemies[currEnemyIndex].getMagic(), self.enemies[currEnemyIndex].getMagicBonus())
-                if magicCoeff > 420:
-                    magicCoeff = 420
+                if magicCoeff > 750:
+                    magicCoeff = 750
                 scalar = 140 + int((magicCoeff-10)/100) - int((((magicCoeff/10)-100)**2)/100)
-                print (magicCoeff, scalar, (scalar/100.0), self.attackRolls[currSetIndex, currEnemyIndex])
                 self.attackRolls[currSetIndex, currEnemyIndex] *= (scalar/100.0)
         
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
                 
     
     def obbyArmorModifier(self):
@@ -265,4 +263,4 @@ class DPS():
             for currEnemyIndex in range(len(self.enemies)):
                 if 'Kalphite' in self.enemies[currEnemyIndex].mobTypes:
                     self.attackRolls[currSetIndex, currEnemyIndex] *= 1.33
-        np.floor(self.attackRolls)
+        self.attackRolls = np.floor(self.attackRolls)
