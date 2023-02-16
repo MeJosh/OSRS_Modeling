@@ -4,7 +4,6 @@ from item import Item
 from monster import Monster
 from player import Player
 from gear_set import GearSet
-from DPSCalc.calc import DamageCalculator
 
 from constants import GEAR_STATS, GEAR_SLOTS
 
@@ -58,5 +57,3 @@ if __name__ == "__main__":
     print(test_gear.getAttackSpeed())
     print(test_gear.attack_type)
     print(test_gear.getAttackBonus())
-
-    DamageCalculator()
