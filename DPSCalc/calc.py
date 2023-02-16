@@ -225,18 +225,19 @@ class DPS():
             set = self.gearsets[currSetIndex]
             if not set.attackStyle[1] == 'Crush':
                 continue
-            multiplier = 1
+            multiplier = 0
             if set.helm == 'Inquisitor\'s great helm':
-                multiplier += 0.005
-            if set.helm == 'Inquisitor\'s hauberk':
-                multiplier += 0.005
-            if set.helm == 'Inquisitor\'s plateskirt':
-                multiplier += 0.005
+                multiplier += 1
+            if set.body == 'Inquisitor\'s hauberk':
+                multiplier += 1
+            if set.legs == 'Inquisitor\'s plateskirt':
+                multiplier += 1
                 
-            if multiplier == 1.015:
-                multiplier = 1.025
+            if multiplier == 3:
+                multiplier = 5
                 
-            self.attackRolls[currSetIndex, :]*= multiplier
+            self.attackRolls[currSetIndex, :]*= 1+ (0.005*multiplier)
+        self.attackRolls = np.floor(self.attackRolls)
             
     def tomeOfWaterModifier(self):
         pass

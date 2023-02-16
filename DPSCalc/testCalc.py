@@ -12,11 +12,17 @@ tbow = Item(['Twisted bow', 0, 0, 0, 0, 70, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0,
 dhcb = Item(['Dragon hunter crossbow', 0, 0, 0, 0, 95, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0])
 dhl = Item(['Dragon hunter lance', 85, 65, 65, 0, 0, 0, 0, 0, 0, 0, 70, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0])
 
+keris = Item(['Keris partisan of breaching', 58, -2, 57, 0, 0, 0, 0, 0, 0, 0, 45, 0, 0, 3, 0, 0, 0, 0, 0, 4, 0, 0])
+
 dragon_defender = Item(['Dragon defender', 25, 24, 23, -3, -2, 25, 24, 23, -3, -2, 6, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0])
 
 crystal_body = Item(['Crystal body', 0, 0, 0, -18, 31, 46, 38, 48, 44, 68, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
 crystal_helm = Item(['Crystal helm', 0, 0, 0, -10, 9, 12, 8, 14, 10, 18, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
 crystal_legs = Item(['Crystal legs', 0, 0, 0, -12, 18, 26, 21, 30, 34, 38, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0])
+
+inquis_body = Item(['Inquisitor\'s hauberk', 0, 0, 0, -18, 31, 46, 38, 48, 44, 68, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
+inquis_legs = Item(['Inquisitor\'s plateskirt', 0, 0, 0, -10, 9, 12, 8, 14, 10, 18, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
+inquis_helm = Item(['Inquisitor\'s great helm', 0, 0, 0, -12, 18, 26, 21, 30, 34, 38, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0])
 
 elite_void_body = Item(['Void knight body', 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
 elite_void_robes = Item(['Void knight robes', 0, 0, 0, 0, 0, 30, 30, 30, 30, 30, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -39,6 +45,11 @@ dhcb_with_salve = ItemSet(None, None, None, salve_amulet_ei, None, None, None, d
 lance_with_defender =ItemSet(None, None, None, None, None, None, None, dhl, dragon_defender, void_gloves, None, ['Controlled', 'Stab'])
 void_mage = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_mage, None, None, void_gloves, None, ['Accurate', 'Mage'])
 void_mage_with_melee = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_mage, None, None, void_gloves, None, ['Controlled', 'Stab'])
+inquis_crush = ItemSet(inquis_body, inquis_legs, None, None, None, None, inquis_helm, None, None, void_gloves, None, ['Controlled', 'Crush'])
+inquis_notCrush = ItemSet(inquis_body, inquis_legs, None, None, None, None, inquis_helm, None, None, void_gloves, None, ['Controlled', 'Stab'])
+partialInquis_crush = ItemSet(inquis_body, inquis_legs, None, None, None, None, None, keris, None, void_gloves, None, ['Controlled', 'Crush'])
+
+
 
 #enemies
 vorkath = NPC(['Vorkath', 0, 0, 0, 750, 560, 308, 214, 150, 308, 5, ['Slash', 'Mage', 'Ranged', 'Dragonfire'], 16, 0, 150, 56, 78, 0, 26, 108, 108, 240, 26, 0, ['Undead', 'Dragon'], 0, 0])
@@ -46,10 +57,6 @@ kq = NPC(['Kalphite queen', 0, 0, 0, 255, 300, 300, 300, 150, 1, 4, ['Stab', 'Ra
 
 #Player
 maxedPlayer = Player(99.0, 99.0, 99.0, 99.0, 99.0, 99.0, 99.0)
-
-#DPS calculation object
-maxedPlayerDPSCalc = DPS(maxedPlayer, [vorkath, kq], [crystal_with_bowfa, crystal_with_tbow])
-
 
 class TestItemSet(unittest.TestCase):
     def test_summingRangedAccuracy(self):
@@ -103,7 +110,24 @@ class TestDPSCalculation(unittest.TestCase):
         dpsObject.attackRolls = np.array([[100.0], [100.0]])
         dpsObject.voidMageAccuracyCheck()
         self.assertEquals(dpsObject.attackRolls[0][0], 145, 'Void mage ins\'t boosting correctly')
-        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Void mage is boosting non-mage based attacks')
-
+        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Void mage is boosting non-mage based attacks')\
+            
+    def test_Inquisitors(self):
+        dpsObject = DPS(maxedPlayer, [vorkath], [inquis_crush, inquis_notCrush, partialInquis_crush])
+        dpsObject.attackRolls = np.array([[1000.0], [1000.0], [1000.0]])
+        dpsObject.inquisitorsModifier()
+        self.assertAlmostEqual(dpsObject.attackRolls[0][0], 1025, msg='Inquis not boosting correctly', delta=0.01)
+        self.assertEquals(dpsObject.attackRolls[1][0], 1000, 'Inquis boosting non crush weaponry')
+        self.assertEquals(dpsObject.attackRolls[2][0], 1010, 'Inquis not boosting correct amount for partial set')
+        
+    def test_KerisPartisanOfBreaching(self):
+        dpsObject = DPS(maxedPlayer, [kq, vorkath], [partialInquis_crush, inquis_crush])
+        dpsObject.attackRolls = np.array([[100.0, 100.0], [100.0, 100.0]])
+        dpsObject.kerisPartisanOfBreachingModifier()
+        self.assertEquals(dpsObject.attackRolls[0][0], 133, 'Partisan not proccing on kalphite')
+        self.assertEquals(dpsObject.attackRolls[0][1], 100, 'Partisan proccing on non kalphite')
+        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Partisan effect proccing against kalphite while not wielding keris')
+        self.assertEquals(dpsObject.attackRolls[1][1], 100, 'Partisan proccing for no good reason')
+        
 if __name__ == '__main__':
     unittest.main()
