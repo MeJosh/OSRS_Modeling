@@ -13,13 +13,13 @@
     "poisonous": 8,
     "attack_styles": ["stab", "dragonfire"],
     "attack_speed": 4,
-    "combat_stats": {
+    "skills": {
         "hitpoints": 240,
         "attack": 240,
         "strength": 240,
         "defense": 240,
         "magic": 240,
-        "range": 1
+        "ranged": 1
     },
     "bonuses": {
         "attack_melee": 0,
