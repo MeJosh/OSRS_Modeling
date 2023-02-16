@@ -1,10 +1,4 @@
-from item import Item
-
-###########################################
-#                  ITEMS                  #
-###########################################
-
-BOW_OF_FAERDHINEN = Item({
+{
     "name": "Bow of Faerdhinen",
     "slot": "two-handed",
     "range": 10,
@@ -23,14 +17,14 @@ BOW_OF_FAERDHINEN = Item({
         "melee_strength": 0,
         "range_strength": 106,
         "magic_damage": 0,
-        "prayer_bonus": 0,
+        "prayer_bonus": 0
     },
     "attack_styles": {
         "accurate": {
             "style_type": "ranged",
             "weapon_style": "accurate",
             "boosts": {
-                "attack_ranged": 3,
+                "attack_ranged": 3
             }
         },
         "rapid": {
@@ -45,8 +39,8 @@ BOW_OF_FAERDHINEN = Item({
             "weapon_style": "longranged",
             "boosts": {
                 "defense": 3,
-                "range": 0,
+                "range": 0
             }
         }
     }
-})
+}
