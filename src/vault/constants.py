@@ -6,14 +6,14 @@ class GEAR_STATS(StrEnum):
     ATTACK_SLASH = auto()
     ATTACK_CRUSH = auto()
     ATTACK_MAGIC = auto()
-    ATTACK_RANGE = auto()
+    ATTACK_RANGED = auto()
     DEFENSE_STAB = auto()
     DEFENSE_SLASH = auto()
     DEFENSE_CRUSH = auto()
     DEFENSE_MAGIC = auto()
-    DEFENSE_RANGE = auto()
+    DEFENSE_RANGED = auto()
     MELEE_STRENGTH = auto()
-    RANGE_STRENGTH = auto()
+    RANGED_STRENGTH = auto()
     MAGIC_DAMAGE = auto()
     PRAYER_BONUS = auto()
 
@@ -43,7 +43,7 @@ class SKILL_TYPES(StrEnum):
     
 class ENEMY_STATS(StrEnum):
     ATTACK = auto()
-    DEFENCE = auto()
+    DEFENSE = auto()
     STRENGTH = auto()
     MAGIC = auto()
     RANGED = auto()
@@ -51,11 +51,11 @@ class ENEMY_STATS(StrEnum):
     DEFENSE_SLASH = auto()
     DEFENSE_CRUSH = auto()
     DEFENSE_MAGIC = auto()
-    DEFENSE_RANGE = auto()
+    DEFENSE_RANGED = auto()
     MELEE_ACCURACY = auto()
     MELEE_STRENGTH = auto()
-    RANGE_ACCURACY = auto()
-    RANGE_STRENGTH = auto()
+    RANGED_ACCURACY = auto()
+    RANGED_STRENGTH = auto()
     MAGIC_DAMAGE = auto()
     MAGIC_ACCURACY = auto()
     ATTRIBUTES = auto()
@@ -63,9 +63,9 @@ class ENEMY_STATS(StrEnum):
     
 class PLAYER_STATS(StrEnum):
     ATTACK = auto()
-    DEFENCE = auto()
+    DEFENSE = auto()
     STRENGTH = auto()
-    RANGE = auto()
+    RANGED = auto()
     MAGIC = auto()
     HITPOINTS = auto()
 
@@ -110,5 +110,13 @@ ATTACK_TYPE_TO_BONUS_MAP = {
     ATTACK_TYPES.SLASH.lower(): GEAR_STATS.ATTACK_SLASH,
     ATTACK_TYPES.CRUSH.lower(): GEAR_STATS.ATTACK_CRUSH,
     ATTACK_TYPES.MAGIC.lower(): GEAR_STATS.ATTACK_MAGIC,
-    ATTACK_TYPES.RANGED.lower(): GEAR_STATS.ATTACK_RANGE,
+    ATTACK_TYPES.RANGED.lower(): GEAR_STATS.ATTACK_RANGED,
+}
+
+ATTACK_STYLE_TYPE_TO_SKILL = {
+    ATTACK_TYPES.STAB.lower(): PLAYER_STATS.ATTACK,
+    ATTACK_TYPES.SLASH.lower(): PLAYER_STATS.ATTACK,
+    ATTACK_TYPES.CRUSH.lower(): PLAYER_STATS.ATTACK,
+    ATTACK_TYPES.MAGIC.lower(): PLAYER_STATS.MAGIC,
+    ATTACK_TYPES.RANGED.lower(): PLAYER_STATS.RANGED,
 }

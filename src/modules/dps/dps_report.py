@@ -14,4 +14,8 @@ if __name__ == "__main__":
     gearset = GearSet()
     gearset.setItemInSlot(GEAR_SLOTS.WEAPON, bowfa)
     
+    print (player)
+    print (gearset)
+    print (kbd)
+    
     calc = DamageCalculator(player, [kbd], [gearset])

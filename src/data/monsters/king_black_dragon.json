@@ -26,12 +26,12 @@
         "melee_strength": 0,
         "attack_magic": 0,
         "magic_damage": 0,
-        "range_bonus": 128,
-        "range_strength": 106,
+        "ranged_bonus": 128,
+        "ranged_strength": 106,
         "defense_stab": 70,
         "defense_slash": 90,
         "defense_crush": 90,
         "defense_magic": 80,
-        "defense_range": 70
+        "defense_ranged": 70
     }
 }

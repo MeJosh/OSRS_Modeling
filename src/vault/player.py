@@ -5,7 +5,7 @@ class Player():
             setattr(self, key, value)
             
     def __str__(self) -> str:
-        return '\n'.join([f' - {stat}: {"Empty" if not self.stats[stat] else str(self.stats[stat])}' for stat in PLAYER_STATS])
+        return '\n'.join([f' - {stat}: {str(self.skills[stat.lower()])}' for stat in PLAYER_STATS])
             
     def getStat(self, stat) -> int:
-        return self.stats[stat]
+        return self.skills[stat.lower()]

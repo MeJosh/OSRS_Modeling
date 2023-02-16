@@ -22,21 +22,25 @@ class GearSet():
             valid_styles = item.getAttackStyles()
             
             # TODO: This should be a smarter check as seen below, but brain is too tired right now - so we'll just hard reset
-            self.attack_style = next(iter(valid_styles))
+            self.attack_style = valid_styles[next(iter(valid_styles))]
 
             # First check if the attack style lines up
             # if self.attack_style not in valid_styles.keys():
             #    self.attack_style = next(iter(valid_styles))
             #    self.attack_type = valid_styles[self.attack_style]["style_type"]
+            
+    def getItemInSlot(self, slot):
+        return self.items[slot]
         
     def setAttackStyle(self, style):
         self.attack_style = style
 
     def getStyleType(self):
+        print (self.attack_style)
         return self.attack_style['style_type']
     
     def getWeaponStyle(self):
-        return self.attack_style
+        return self.attack_style['weapon_style']
 
     def getAttackStyles(self) -> list:
         return list(self.items[GEAR_SLOTS.WEAPON].getAttackStyles().keys()) if self.items[GEAR_SLOTS.WEAPON] is not None \

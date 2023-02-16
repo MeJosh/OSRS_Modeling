@@ -2,37 +2,37 @@ import numpy as np
 from ...vault.player import Player
 from ...vault.monster import Monster
 from ...vault.gearset import GearSet
-from ...vault.constants import GEAR_STATS, GEAR_SLOTS
+from ...vault.constants import GEAR_STATS, GEAR_SLOTS, ATTACK_STYLE_TYPE_TO_SKILL, ATTACK_TYPE_TO_BONUS_MAP
 
 ATTACK_STANCE_MODIFIER = {
-    'Attack': {
-        'Controlled': 9,
-        'Accurate': 11,
-        'Defensive': 8,
-        'Aggressive': 8
+    'attack': {
+        'controlled': 9,
+        'accurate': 11,
+        'defensive': 8,
+        'aggressive': 8
     },
-    'Strength': {
-        'Controlled': 9,
-        'Accurate': 8,
-        'Defensive': 8,
-        'Aggressive': 11
+    'strength': {
+        'controlled': 9,
+        'accurate': 8,
+        'defensive': 8,
+        'aggressive': 11
     },
-    'Defence': {
-        'Controlled': 9,
-        'Accurate': 8,
-        'Defensive': 11,
-        'Aggressive': 8,
-        'Longrange': 11
+    'defense': {
+        'controlled': 9,
+        'accurate': 8,
+        'defensive': 11,
+        'aggressive': 8,
+        'longrange': 11
     },
-    'Mage': {
-        'Accurate': 11,
-        'Longrange': 9,
-        'Defensive': 9
+    'magic': {
+        'accurate': 11,
+        'longrange': 9,
+        'defensive': 9
     },
-    'Ranged' :{
-        'Rapid': 8,
-        'Accurate': 11,
-        'Longrange': 8
+    'ranged' :{
+        'rapid': 8,
+        'accurate': 11,
+        'longrange': 8
     }
 }
 
@@ -44,7 +44,7 @@ class DamageCalculator():
         
         #Each row is for an individual item set against all enemies
         self.attackRolls = None
-        self.defenceRolls = [] 
+        self.defenseRolls = [] 
         
         self.weaponAccuracyRollModifiers = {
             'Crystal bow': self.crystalArmorModifier,
@@ -70,15 +70,7 @@ class DamageCalculator():
         attackRolls = []
         for set in self.gearsets:
             #TODO: Replace instances of 'ranged', 'mage', and ('Stab', 'Slash', 'Crush') with constants everywhere
-            if set.getWeaponStyle() == 'Ranged':
-                attackRolls.append([self.player.getRangedLevel() for i in range(len(self.enemies))])
-            
-            elif set.getWeaponStyle() == 'Mage':
-                attackRolls.append([self.player.getMageLevel() for i in range(len(self.enemies))])
-             
-            elif set.getWeaponStyle() in ('Stab', 'Slash', 'Crush'):
-                attackRolls.append([self.player.getAttackLevel()  for i in range(len(self.enemies))])   
-        
+            attackRolls.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_SKILL[set.getStyleType()])  for i in range(len(self.enemies))])   
         
         self.attackRolls = np.array(attackRolls)
         
@@ -102,8 +94,8 @@ class DamageCalculator():
             self.factorInOffensiveGearBonuses(i)
             
             print (self.attackRolls)
-            if (self.gearsets[i].weapon.name in self.weaponAccuracyRollModifiers):
-                self.weaponAccuracyRollModifiers[self.gearsets[i].weapon.name](i)
+            if (self.gearsets[i].getItemInSlot(GEAR_SLOTS.WEAPON).name in self.weaponAccuracyRollModifiers):
+                self.weaponAccuracyRollModifiers[self.gearsets[i].getItemInSlot(GEAR_SLOTS.WEAPON)](i)
             print (self.attackRolls)
             #salve
             self.salveModifier(i)
@@ -136,32 +128,30 @@ class DamageCalculator():
         
     def voidMageAccuracyCheck(self, setIndex):
         set = self.gearsets[setIndex]
-        if not (set.body == 'Void knight body' and set.legs == 'Void knight robes' and set.gloves == 'Void knight gloves'):
+        if not (set.getItemInSlot(GEAR_SLOTS.BODY) == 'Void knight body' and set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Void knight robes' and set.getItemInSlot(GEAR_SLOTS.HANDS) == 'Void knight gloves'):
             return
-        if set.helm == 'Void mage helm' and set.attackStyle[1] == 'Mage':
+        if set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Void mage helm' and set.getStyleType() == 'Mage':
             self.attackRolls[setIndex, :]*=1.45    
             self.attackRolls = np.floor(self.attackRolls)
                 
     def otherVoidAccuracyCheck(self, setIndex):   
         set = self.gearsets[setIndex]
-        if not (set.body == 'Void knight body' and set.legs == 'Void knight robes' and set.gloves == 'Void knight gloves'):
+        if not (set.getItemInSlot(GEAR_SLOTS.BODY) == 'Void knight body' and set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Void knight robes' and set.getItemInSlot(GEAR_SLOTS.HANDS) == 'Void knight gloves'):
             return
-        if set.helm == 'Void melee helm' and set.attackStyle[1] in ('Stab', 'Slash', 'Crush'):
+        if set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Void melee helm' and set.getStyleType() in ('Stab', 'Slash', 'Crush'):
             self.attackRolls[setIndex, :]*=1.1
             self.attackRolls = np.floor(self.attackRolls)
-        elif set.helm == 'Void ranger helm' and set.attackStyle[1] == 'Ranged':
+        elif set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Void ranger helm' and set.getStyleType() == 'Ranged':
             self.attackRolls[setIndex, :]*=1.1
             self.attackRolls = np.floor(self.attackRolls)
                  
     def addStanceAttackBonus(self, setIndex):
-        attackStyle = self.gearsets[setIndex].attackStyle
-        if attackStyle[1] in ('Stab', 'Slash', 'Crush'):
-            self.attackRolls[setIndex, :] += ATTACK_STANCE_MODIFIER['Attack'][attackStyle[0]]
-        else:
-            self.attackRolls[setIndex, :] += ATTACK_STANCE_MODIFIER[attackStyle[1]][attackStyle[0]]
+        styleType = self.gearsets[setIndex].getStyleType()
+        weaponStyle = self.gearsets[setIndex].getWeaponStyle()
+        self.attackRolls[setIndex, :] += ATTACK_STANCE_MODIFIER[ATTACK_STYLE_TYPE_TO_SKILL[styleType].lower()][weaponStyle.lower()]
     
     def factorInOffensiveGearBonuses(self, setIndex):
-        self.attackRolls[setIndex, :] *= (64+self.gearsets[setIndex].getAccuracyForCurrentStyle())
+        self.attackRolls[setIndex, :] *= (64+self.gearsets[setIndex].getBonus(ATTACK_TYPE_TO_BONUS_MAP[self.gearsets[setIndex].getStyleType()]))
          
     def tumekensShadowModifier(self, setIndex):
         pass
@@ -172,11 +162,11 @@ class DamageCalculator():
     def crystalArmorModifier(self, setIndex):
         set = self.gearsets[setIndex]
         multiplier = 1
-        if set.helm == 'Crystal helm':
+        if set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Crystal helm':
             multiplier += 0.05 
-        if set.body == 'Crystal body':
+        if set.getItemInSlot(GEAR_SLOTS.BODY) == 'Crystal body':
             multiplier += 0.15
-        if set.legs == 'Crystal legs':
+        if set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Crystal legs':
             multiplier += 0.1
         self.attackRolls[setIndex, :] *= multiplier  
         self.attackRolls = np.floor(self.attackRolls)
@@ -184,7 +174,7 @@ class DamageCalculator():
     def salveModifier(self, setIndex):
         set = self.gearsets[setIndex]
         #Currently assumes all salves are (ei)
-        if not set.necklace == 'Salve amulet':
+        if not set.getItemInSlot(GEAR_SLOTS.NECK) == 'Salve amulet':
             return
         for currEnemyIndex in range(len(self.enemies)):
             if 'Undead' in self.enemies[currEnemyIndex].mobTypes:
@@ -235,14 +225,14 @@ class DamageCalculator():
     
     def inquisitorsModifier(self, setIndex):
         set = self.gearsets[setIndex]
-        if not set.attackStyle[1] == 'Crush':
+        if not set.getStyleType() == 'Crush':
             return
         multiplier = 0
-        if set.helm == 'Inquisitor\'s great helm':
+        if set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Inquisitor\'s great helm':
             multiplier += 1
-        if set.body == 'Inquisitor\'s hauberk':
+        if set.getItemInSlot(GEAR_SLOTS.BODY) == 'Inquisitor\'s hauberk':
             multiplier += 1
-        if set.legs == 'Inquisitor\'s plateskirt':
+        if set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Inquisitor\'s plateskirt':
             multiplier += 1
             
         if multiplier == 3:
