@@ -7,32 +7,7 @@ from datetime import date
 from shutil import copyfile
 from os.path import exists
 
-SKILLS = [
-    "Overall",
-    "Attack",
-    "Defense",
-    "Strength",
-    "Hitpoints",
-    "Ranged",
-    "Prayer",
-    "Magic",
-    "Cooking",
-    "Woodcutting",
-    "Fletching",
-    "Fishing",
-    "Firemaking",
-    "Crafting",
-    "Smithing",
-    "Mining",
-    "Herblore",
-    "Agility",
-    "Thieving",
-    "Slayer",
-    "Farming",
-    "Runecrafting",
-    "Hunter",
-    "Construction"
-]
+
 
 BOSSES = [
     "Bounty Hunter - Hunter",
@@ -116,9 +91,9 @@ def formatCharacterData(data):
     #print(data)
 
     result["skills"] = {}
-    for SKILL in SKILLS:
+    '''for SKILL in SKILLS:
         skill_data = data.pop(0)
-        result["skills"][SKILL] = skill_data.split(",")
+        result["skills"][SKILL] = skill_data.split(",")'''
 
     result["bosses"] = {}
     for BOSS in BOSSES:

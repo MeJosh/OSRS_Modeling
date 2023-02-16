@@ -1,6 +1,6 @@
 from vault.player import Player
 from vault.monster import Monster
-from vault.gear_set import GearSet
+from vault.gearset import GearSet
 from vault.constants import GEAR_STATS, GEAR_SLOTS
 import numpy as np
 

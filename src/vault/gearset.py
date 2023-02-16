@@ -1,4 +1,4 @@
-from constants import GEAR_SLOTS, ATTACK_TYPES, ATTACK_STYLES, ATTACK_TYPE_TO_BONUS_MAP
+from .constants import GEAR_SLOTS, ATTACK_TYPES, ATTACK_STYLES, ATTACK_TYPE_TO_BONUS_MAP
 
 class GearSet():
     def __init__(self):

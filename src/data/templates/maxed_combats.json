@@ -1,0 +1,12 @@
+{
+    "name": "CBA_2_Skill",
+    "skills": {
+        "attack": 99,
+        "strength": 99,
+        "defense": 99,
+        "magic": 99,
+        "ranged": 99,
+        "prayer": 99,
+        "hitpoints": 99
+    }
+}

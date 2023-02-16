@@ -1,11 +1,11 @@
 import os.path
 import json
-from item import Item
-from monster import Monster
-from player import Player
-from gear_set import GearSet
+from .item import Item
+from .monster import Monster
+from .player import Player
+from .gearset import GearSet
 
-from constants import GEAR_STATS, GEAR_SLOTS, SKILL_TYPES, ENEMY_STATS
+from .constants import GEAR_STATS, GEAR_SLOTS, SKILL_TYPES, ENEMY_STATS
 
 ITEM_DIR = "/items"
 MONSTER_DIR = "/monsters"
