@@ -68,7 +68,6 @@ class PLAYER_STATS(StrEnum):
     RANGE = auto()
     MAGIC = auto()
     HITPOINTS = auto()
-    CURRENT_HITPOINTS = auto()
 
 class GEAR_SLOTS(StrEnum):
     HEAD = auto()
