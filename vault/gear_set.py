@@ -7,7 +7,6 @@ class GearSet():
             self.items[slot] = None
 
         # Set default values for Unarmed - Punch
-        self.attack_type = ATTACK_TYPES.CRUSH.lower()
         self.attack_style = ATTACK_STYLES.ACCURATE.lower()
 
     def __str__(self) -> str:
@@ -24,15 +23,20 @@ class GearSet():
             
             # TODO: This should be a smarter check as seen below, but brain is too tired right now - so we'll just hard reset
             self.attack_style = next(iter(valid_styles))
-            self.attack_type = valid_styles[self.attack_style]["style_type"]
 
             # First check if the attack style lines up
             # if self.attack_style not in valid_styles.keys():
             #    self.attack_style = next(iter(valid_styles))
             #    self.attack_type = valid_styles[self.attack_style]["style_type"]
         
-    def setAttackStyle(self, style) -> bool:
+    def setAttackStyle(self, style):
         self.attack_style = style
+
+    def getStyleType(self):
+        return self.attack_style['style_type']
+    
+    def getWeaponStyle(self):
+        return self.attack_style['weapon_style']
 
     def getAttackStyles(self) -> list:
         return list(self.items[GEAR_SLOTS.WEAPON].getAttackStyles().keys()) if self.items[GEAR_SLOTS.WEAPON] is not None \
@@ -46,7 +50,7 @@ class GearSet():
 
     def getAttackBonus(self, attack_stat=None) -> float:
         if not attack_stat:
-            attack_stat = ATTACK_TYPE_TO_BONUS_MAP[self.attack_type]
+            attack_stat = ATTACK_TYPE_TO_BONUS_MAP[self.getStyleType()]
         
         return sum([0 if self.items[slot] is None else self.items[slot].getBonus(attack_stat) for slot in GEAR_SLOTS])
 
