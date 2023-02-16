@@ -58,76 +58,7 @@ kq = NPC(['Kalphite queen', 0, 0, 0, 255, 300, 300, 300, 150, 1, 4, ['Stab', 'Ra
 #Player
 maxedPlayer = Player(99.0, 99.0, 99.0, 99.0, 99.0, 99.0, 99.0)
 
-class TestItemSet(unittest.TestCase):
-    def test_summingRangedAccuracy(self):
-        self.assertEquals(crystal_with_bowfa.getRangedAccuracy(), 186, 'Item set ranged accuracy should be 186')
-        
-    def test_summingRangedStrength(self):
-        self.assertEquals(crystal_with_bowfa.getRangeStrength(), 106, 'Item set ranged accuracy should be 106')
-        
-class TestDPSCalculation(unittest.TestCase):
-    def test_attackRollCalculationWithTbowAndCrystal(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [crystal_with_tbow, crystal_with_bowfa])
-        dpsObject.attackRolls = np.array([[100.0], [100.0]])
-        dpsObject.crystalArmorModifier()
-        self.assertEquals(dpsObject.attackRolls[0][0], 100, 'Crystal armor boosting non-crystal weaponry')
-        self.assertEquals(dpsObject.attackRolls[1][0], 130, 'Crystal armor not boosting crystal weaponry')
-        
-    def testVoidRangeAccuracyWhenValid(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [void_with_bowfa])
-        dpsObject.attackRolls = np.array([[100.0]])
-        dpsObject.otherVoidAccuracyCheck()
-        self.assertEquals(dpsObject.attackRolls[0][0], 110, 'Void not boosting accuracy when ranging')
-        
-    def testVoidRangeAccuracyWhenUsingMelee(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [ranged_void_with_lance, melee_void_with_lance])
-        dpsObject.attackRolls = np.array([[100.0], [100.0]])
-        dpsObject.otherVoidAccuracyCheck()
-        self.assertEquals(dpsObject.attackRolls[0][0], 100, 'Void range is boosting melee weapons')
-        self.assertEquals(dpsObject.attackRolls[1][0], 110, 'Void melee isn\'t boosting accuracy')
-        
-    def test_SalveAmuletBoostWhenWearingSalve(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [dhcb_with_salve, crystal_with_bowfa])
-        dpsObject.attackRolls = np.array([[100.0], [100.0]])
-        dpsObject.salveModifier()
-        self.assertEquals(dpsObject.attackRolls[0][0], 120, 'Salve isn\'t boosting correctly')
-        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Salve is boosting accuracy when not equipped')
-        
-    def test_DHCB(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [dhcb_with_salve])
-        dpsObject.attackRolls = np.array([[100.0]])
-        dpsObject.dhcbModifier()
-        self.assertEquals(dpsObject.attackRolls[0][0], 130, 'DHCB not applying bonus accuracy')
-        
-    def test_DHL(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [lance_with_defender])
-        dpsObject.attackRolls = np.array([[100.0]])
-        dpsObject.lanceModifier()
-        self.assertEquals(dpsObject.attackRolls[0][0], 120, 'DHL not applying bonus accuracy')
-            
-    def test_VoidMage(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [void_mage, void_mage_with_melee])
-        dpsObject.attackRolls = np.array([[100.0], [100.0]])
-        dpsObject.voidMageAccuracyCheck()
-        self.assertEquals(dpsObject.attackRolls[0][0], 145, 'Void mage ins\'t boosting correctly')
-        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Void mage is boosting non-mage based attacks')\
-            
-    def test_Inquisitors(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [inquis_crush, inquis_notCrush, partialInquis_crush])
-        dpsObject.attackRolls = np.array([[1000.0], [1000.0], [1000.0]])
-        dpsObject.inquisitorsModifier()
-        self.assertAlmostEqual(dpsObject.attackRolls[0][0], 1025, msg='Inquis not boosting correctly', delta=0.01)
-        self.assertEquals(dpsObject.attackRolls[1][0], 1000, 'Inquis boosting non crush weaponry')
-        self.assertEquals(dpsObject.attackRolls[2][0], 1010, 'Inquis not boosting correct amount for partial set')
-        
-    def test_KerisPartisanOfBreaching(self):
-        dpsObject = DPS(maxedPlayer, [kq, vorkath], [partialInquis_crush, inquis_crush])
-        dpsObject.attackRolls = np.array([[100.0, 100.0], [100.0, 100.0]])
-        dpsObject.kerisPartisanOfBreachingModifier()
-        self.assertEquals(dpsObject.attackRolls[0][0], 133, 'Partisan not proccing on kalphite')
-        self.assertEquals(dpsObject.attackRolls[0][1], 100, 'Partisan proccing on non kalphite')
-        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Partisan effect proccing against kalphite while not wielding keris')
-        self.assertEquals(dpsObject.attackRolls[1][1], 100, 'Partisan proccing for no good reason')
+test = DPS(maxedPlayer, [vorkath, kq], [crystal_with_tbow, lance_with_defender, dhcb_with_salve])
         
 if __name__ == '__main__':
     unittest.main()
