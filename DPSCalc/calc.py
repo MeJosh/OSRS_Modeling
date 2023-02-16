@@ -31,7 +31,6 @@ class DPS():
         
         
         self.attackRolls = np.array(attackRolls)
-        print(self.attackRolls)
         
         #Skipping boosts and prayers for now, but leaving a comment here to indicate that
         self.potionBoosts()
@@ -39,18 +38,14 @@ class DPS():
         
         #Checking for void mage accuracy buffs
         self.voidMageAccuracyCheck()
-        print(self.attackRolls)
         
         #Applying effective level booost from attack stance
         self.addStanceAttackBonus()
-        print(self.attackRolls)
         
         self.otherVoidAccuracyCheck()
-        print(self.attackRolls)
         
         #Calculate initial rolls, before equipment modifiers
         self.factorInOffensiveGearBonuses()
-        print(self.attackRolls)
         
         #tumekens shadow modifier
         self.tumekensShadowModifier()
@@ -60,11 +55,9 @@ class DPS():
         
         #crystalArmor
         self.crystalArmorModifier()
-        print(self.attackRolls)
         
         #salve
         self.salveModifier()
-        print(2, self.attackRolls)
         
         #slayer helm
         self.slayerHelmModifier()
@@ -74,18 +67,15 @@ class DPS():
         
         #dhcb Modifier
         self.dhcbModifier()
-        print(1, self.attackRolls)
         
         #lance Modifier
         self.lanceModifier()
-        print(self.attackRolls)
         
         #wildy weapons
         self.wildyWeaponsModifier()
         
         #tbow
         self.tbowModifier()
-        print(self.attackRolls)
 
         #obsidian armor
         self.obbyArmorModifier()
@@ -101,7 +91,6 @@ class DPS():
         
         #keris partisan of breaching
         self.kerisPartisanOfBreachingModifier()
-        print(self.attackRolls)
           
     def prayerBoosts(self):
         pass
@@ -147,8 +136,7 @@ class DPS():
         for currSetIndex in range(len(self.gearsets)):
             for currEnemyIndex in range(len(self.enemies)):
                 self.attackRolls[currSetIndex, currEnemyIndex] *= (64+self.gearsets[currSetIndex].getAccuracyForCurrentStyle())
-        
-    
+         
     def tumekensShadowModifier(self):
         pass
 
@@ -167,7 +155,6 @@ class DPS():
                 multiplier += 0.15
             if set.legs == 'Crystal legs':
                 multiplier += 0.1
-            print (multiplier)
             self.attackRolls[currSetIndex, :] *= multiplier  
         self.attackRolls = np.floor(self.attackRolls)
                         
@@ -227,7 +214,6 @@ class DPS():
         
         self.attackRolls = np.floor(self.attackRolls)
                 
-    
     def obbyArmorModifier(self):
         pass
     

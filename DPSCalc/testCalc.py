@@ -2,6 +2,7 @@ from calc import DPS
 from player import Player
 from enemy import NPC
 from item import Item, ItemSet
+import numpy as np
 import unittest
 
 
@@ -11,14 +12,13 @@ tbow = Item(['Twisted bow', 0, 0, 0, 0, 70, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0,
 dhcb = Item(['Dragon hunter crossbow', 0, 0, 0, 0, 95, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0])
 dhl = Item(['Dragon hunter lance', 85, 65, 65, 0, 0, 0, 0, 0, 0, 0, 70, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0])
 
-
 dragon_defender = Item(['Dragon defender', 25, 24, 23, -3, -2, 25, 24, 23, -3, -2, 6, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0])
 
 crystal_body = Item(['Crystal body', 0, 0, 0, -18, 31, 46, 38, 48, 44, 68, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
-crystal_helm = Item(['Crystal body', 0, 0, 0, -10, 9, 12, 8, 14, 10, 18, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
-crystal_legs = Item(['Crystal body', 0, 0, 0, -12, 18, 26, 21, 30, 34, 38, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0])
+crystal_helm = Item(['Crystal helm', 0, 0, 0, -10, 9, 12, 8, 14, 10, 18, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
+crystal_legs = Item(['Crystal legs', 0, 0, 0, -12, 18, 26, 21, 30, 34, 38, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0])
 
-elite_void_body = Item(['Void knight top', 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
+elite_void_body = Item(['Void knight body', 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
 elite_void_robes = Item(['Void knight robes', 0, 0, 0, 0, 0, 30, 30, 30, 30, 30, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0])
 void_gloves = Item(['Void knight gloves', 0, 0, 0, 0, 0, 6, 6, 6, 4, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 void_helm_melee = Item(['Void melee helm', 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -34,8 +34,11 @@ crystal_with_tbow = ItemSet(crystal_body, crystal_legs, None, None, None, None, 
 void_with_bowfa = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_range, bowfa, None, void_gloves, None, ['Accurate', 'Ranged'])
 void_with_tbow = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_range, tbow, None, void_gloves, None, ['Accurate', 'Ranged'])
 ranged_void_with_lance = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_range, dhl, None, void_gloves, None, ['Controlled', 'Stab'])
-melee_void_with_lance = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_range, dhl, dragon_defender, void_gloves, None, ['Controlled', 'Stab'])
-melee_void_with_lance_and_salve = ItemSet(elite_void_body, elite_void_robes, None, salve_amulet_ei, None, None, void_helm_melee, dhl, dragon_defender, void_gloves, None, ['Controlled', 'Stab'])
+melee_void_with_lance = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_melee, dhl, dragon_defender, void_gloves, None, ['Controlled', 'Stab'])
+dhcb_with_salve = ItemSet(None, None, None, salve_amulet_ei, None, None, None, dhcb, dragon_defender, void_gloves, None, ['Accurate', 'Ranged'])
+lance_with_defender =ItemSet(None, None, None, None, None, None, None, dhl, dragon_defender, void_gloves, None, ['Controlled', 'Stab'])
+void_mage = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_mage, None, None, void_gloves, None, ['Accurate', 'Mage'])
+void_mage_with_melee = ItemSet(elite_void_body, elite_void_robes, None, None, None, None, void_helm_mage, None, None, void_gloves, None, ['Controlled', 'Stab'])
 
 #enemies
 vorkath = NPC(['Vorkath', 0, 0, 0, 750, 560, 308, 214, 150, 308, 5, ['Slash', 'Mage', 'Ranged', 'Dragonfire'], 16, 0, 150, 56, 78, 0, 26, 108, 108, 240, 26, 0, ['Undead', 'Dragon'], 0, 0])
@@ -47,10 +50,8 @@ maxedPlayer = Player(99.0, 99.0, 99.0, 99.0, 99.0, 99.0, 99.0)
 #DPS calculation object
 maxedPlayerDPSCalc = DPS(maxedPlayer, [vorkath, kq], [crystal_with_bowfa, crystal_with_tbow])
 
-print (melee_void_with_lance)
 
 class TestItemSet(unittest.TestCase):
-    
     def test_summingRangedAccuracy(self):
         self.assertEquals(crystal_with_bowfa.getRangedAccuracy(), 186, 'Item set ranged accuracy should be 186')
         
@@ -59,8 +60,50 @@ class TestItemSet(unittest.TestCase):
         
 class TestDPSCalculation(unittest.TestCase):
     def test_attackRollCalculationWithTbowAndCrystal(self):
-        dpsObject = DPS(maxedPlayer, [vorkath], [crystal_with_tbow])
-        self.assertEquals(dpsObject.attackRolls[0][0], 24076, 'TBow formula incorrect')
+        dpsObject = DPS(maxedPlayer, [vorkath], [crystal_with_tbow, crystal_with_bowfa])
+        dpsObject.attackRolls = np.array([[100.0], [100.0]])
+        dpsObject.crystalArmorModifier()
+        self.assertEquals(dpsObject.attackRolls[0][0], 100, 'Crystal armor boosting non-crystal weaponry')
+        self.assertEquals(dpsObject.attackRolls[1][0], 130, 'Crystal armor not boosting crystal weaponry')
+        
+    def testVoidRangeAccuracyWhenValid(self):
+        dpsObject = DPS(maxedPlayer, [vorkath], [void_with_bowfa])
+        dpsObject.attackRolls = np.array([[100.0]])
+        dpsObject.otherVoidAccuracyCheck()
+        self.assertEquals(dpsObject.attackRolls[0][0], 110, 'Void not boosting accuracy when ranging')
+        
+    def testVoidRangeAccuracyWhenUsingMelee(self):
+        dpsObject = DPS(maxedPlayer, [vorkath], [ranged_void_with_lance, melee_void_with_lance])
+        dpsObject.attackRolls = np.array([[100.0], [100.0]])
+        dpsObject.otherVoidAccuracyCheck()
+        self.assertEquals(dpsObject.attackRolls[0][0], 100, 'Void range is boosting melee weapons')
+        self.assertEquals(dpsObject.attackRolls[1][0], 110, 'Void melee isn\'t boosting accuracy')
+        
+    def test_SalveAmuletBoostWhenWearingSalve(self):
+        dpsObject = DPS(maxedPlayer, [vorkath], [dhcb_with_salve, crystal_with_bowfa])
+        dpsObject.attackRolls = np.array([[100.0], [100.0]])
+        dpsObject.salveModifier()
+        self.assertEquals(dpsObject.attackRolls[0][0], 120, 'Salve isn\'t boosting correctly')
+        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Salve is boosting accuracy when not equipped')
+        
+    def test_DHCB(self):
+        dpsObject = DPS(maxedPlayer, [vorkath], [dhcb_with_salve])
+        dpsObject.attackRolls = np.array([[100.0]])
+        dpsObject.dhcbModifier()
+        self.assertEquals(dpsObject.attackRolls[0][0], 130, 'DHCB not applying bonus accuracy')
+        
+    def test_DHL(self):
+        dpsObject = DPS(maxedPlayer, [vorkath], [lance_with_defender])
+        dpsObject.attackRolls = np.array([[100.0]])
+        dpsObject.lanceModifier()
+        self.assertEquals(dpsObject.attackRolls[0][0], 120, 'DHL not applying bonus accuracy')
+            
+    def test_VoidMage(self):
+        dpsObject = DPS(maxedPlayer, [vorkath], [void_mage, void_mage_with_melee])
+        dpsObject.attackRolls = np.array([[100.0], [100.0]])
+        dpsObject.voidMageAccuracyCheck()
+        self.assertEquals(dpsObject.attackRolls[0][0], 145, 'Void mage ins\'t boosting correctly')
+        self.assertEquals(dpsObject.attackRolls[1][0], 100, 'Void mage is boosting non-mage based attacks')
 
 if __name__ == '__main__':
     unittest.main()
