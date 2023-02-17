@@ -2,7 +2,7 @@ import numpy as np
 from ...vault.player import Player
 from ...vault.monster import Monster
 from ...vault.gearset import GearSet
-from ...vault.constants import GEAR_STATS, GEAR_SLOTS, ATTACK_STYLE_TYPE_TO_SKILL, ATTACK_TYPE_TO_BONUS_MAP
+from ...vault.constants import GEAR_STATS, GEAR_SLOTS, ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL, ATTACK_TYPE_TO_BONUS_MAP, ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL, ATTACK_STYLE_TO_GEAR_STRENGTH
 
 ATTACK_STANCE_MODIFIER = {
     'attack': {
@@ -36,6 +36,7 @@ ATTACK_STANCE_MODIFIER = {
     }
 }
 
+
 class DamageCalculator():
     def __init__(self, player: Player, enemies: list[Monster], gearsets: list[GearSet]):
         self.player = player
@@ -44,6 +45,7 @@ class DamageCalculator():
         
         #Each row is for an individual item set against all enemies
         self.attackRolls = None
+        self.maxHits = None
         self.defenseRolls = [] 
         
         self.weaponAccuracyRollModifiers = {
@@ -63,16 +65,19 @@ class DamageCalculator():
             'Webweaver bow': self.wildyWeaponsModifier
         }
     
-        self.calculateMaxAttackRolls()
+        self.CalculateDPS()
         
         
-    def calculateMaxAttackRolls(self):
+    def CalculateDPS(self):
         attackRolls = []
+        maxHits = []
         for set in self.gearsets:
             #TODO: Replace instances of 'ranged', 'mage', and ('Stab', 'Slash', 'Crush') with constants everywhere
-            attackRolls.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_SKILL[set.getStyleType()])  for i in range(len(self.enemies))])   
+            attackRolls.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL[set.getStyleType()])  for i in range(len(self.enemies))])
+            maxHits.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL[set.getStyleType()]) for i in range(len(self.enemies))])
         
         self.attackRolls = np.array(attackRolls)
+        self.maxHits = np.array(maxHits)
         
         for i in range(len(self.attackRolls)):
             #Skipping boosts and prayers for now, but leaving a comment here to indicate that
@@ -80,23 +85,23 @@ class DamageCalculator():
             self.prayerBoosts()
             
             #Checking for void mage accuracy buffs
-            self.voidMageAccuracyCheck(i)
-            print (self.attackRolls)
+            self.voidMageCheck(i)
+            print (self.maxHits)
             
             #Applying effective level booost from attack stance
-            self.addStanceAttackBonus(i)
-            print (self.attackRolls)
+            self.addStanceBonus(i)
+            print (self.maxHits)
             
-            self.otherVoidAccuracyCheck(i)
-            print (self.attackRolls)
+            self.otherVoidCheck(i)
+            print (self.maxHits)
             
             #Calculate initial rolls, before equipment modifiers
             self.factorInOffensiveGearBonuses(i)
             
-            print (self.attackRolls)
+            print (self.maxHits)
             if (self.gearsets[i].getItemInSlot(GEAR_SLOTS.WEAPON).name in self.weaponAccuracyRollModifiers):
                 self.weaponAccuracyRollModifiers[self.gearsets[i].getItemInSlot(GEAR_SLOTS.WEAPON)](i)
-            print (self.attackRolls)
+            print (self.maxHits)
             #salve
             self.salveModifier(i)
             
@@ -118,6 +123,7 @@ class DamageCalculator():
             #tome of water
             self.tomeOfWaterModifier()
         print (self.attackRolls)
+        print (self.maxHits)
         
           
     def prayerBoosts(self):
@@ -126,7 +132,7 @@ class DamageCalculator():
     def potionBoosts(self):
         pass
         
-    def voidMageAccuracyCheck(self, setIndex):
+    def voidMageCheck(self, setIndex):
         set = self.gearsets[setIndex]
         if not (set.getItemInSlot(GEAR_SLOTS.BODY) == 'Void knight body' and set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Void knight robes' and set.getItemInSlot(GEAR_SLOTS.HANDS) == 'Void knight gloves'):
             return
@@ -134,24 +140,33 @@ class DamageCalculator():
             self.attackRolls[setIndex, :]*=1.45    
             self.attackRolls = np.floor(self.attackRolls)
                 
-    def otherVoidAccuracyCheck(self, setIndex):   
+    #Currently assumes all void is regular void
+    def otherVoidCheck(self, setIndex):   
         set = self.gearsets[setIndex]
         if not (set.getItemInSlot(GEAR_SLOTS.BODY) == 'Void knight body' and set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Void knight robes' and set.getItemInSlot(GEAR_SLOTS.HANDS) == 'Void knight gloves'):
             return
         if set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Void melee helm' and set.getStyleType() in ('Stab', 'Slash', 'Crush'):
             self.attackRolls[setIndex, :]*=1.1
+            self.maxHits *= 1.1
+            self.maxHits = np.floor(self.maxHits)
             self.attackRolls = np.floor(self.attackRolls)
         elif set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Void ranger helm' and set.getStyleType() == 'Ranged':
             self.attackRolls[setIndex, :]*=1.1
+            self.maxHits *= 1.1
+            self.maxHits = np.floor(self.maxHits)
             self.attackRolls = np.floor(self.attackRolls)
                  
-    def addStanceAttackBonus(self, setIndex):
+    def addStanceBonus(self, setIndex):
         styleType = self.gearsets[setIndex].getStyleType()
         weaponStyle = self.gearsets[setIndex].getWeaponStyle()
-        self.attackRolls[setIndex, :] += ATTACK_STANCE_MODIFIER[ATTACK_STYLE_TYPE_TO_SKILL[styleType].lower()][weaponStyle.lower()]
+        self.attackRolls[setIndex, :] += ATTACK_STANCE_MODIFIER[ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL[styleType].lower()][weaponStyle.lower()]
+        self.maxHits[setIndex, :] += ATTACK_STANCE_MODIFIER[ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL[styleType].lower()][weaponStyle.lower()]
     
     def factorInOffensiveGearBonuses(self, setIndex):
         self.attackRolls[setIndex, :] *= (64+self.gearsets[setIndex].getBonus(ATTACK_TYPE_TO_BONUS_MAP[self.gearsets[setIndex].getStyleType()]))
+        styleType = self.gearsets[setIndex].getStyleType().upper()
+        self.maxHits[setIndex,:] =0.5 + self.maxHits[setIndex,:]*(64+self.gearsets[setIndex].getBonus(ATTACK_STYLE_TO_GEAR_STRENGTH[styleType])) / 640
+        self.maxHits = np.floor(self.maxHits)
          
     def tumekensShadowModifier(self, setIndex):
         pass
@@ -168,7 +183,9 @@ class DamageCalculator():
             multiplier += 0.15
         if set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Crystal legs':
             multiplier += 0.1
-        self.attackRolls[setIndex, :] *= multiplier  
+        self.attackRolls[setIndex, :] *= multiplier
+        self.maxHits[setIndex, :] *= multiplier
+        self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
                         
     def salveModifier(self, setIndex):
@@ -179,6 +196,8 @@ class DamageCalculator():
         for currEnemyIndex in range(len(self.enemies)):
             if 'Undead' in self.enemies[currEnemyIndex].mobTypes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.2
+                self.maxHits[setIndex, :] *= 1.2
+        self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
 
     def slayerHelmModifier(self):
@@ -188,17 +207,19 @@ class DamageCalculator():
         pass
     
     def dhcbModifier(self, setIndex):
-        set = self.gearsets[setIndex]
         for currEnemyIndex in range(len(self.enemies)):
             if 'Dragon' in self.enemies[currEnemyIndex].mobTypes:
-                self.attackRolls[setIndex, currEnemyIndex] *= 1.3
+                self.attackRolls[setIndex, currEnemyIndex] *= 1.3                
+                self.maxHits[setIndex, :] *= 1.3
+        self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
     
     def lanceModifier(self, setIndex):
-        set = self.gearsets[setIndex]
         for currEnemyIndex in range(len(self.enemies)):
             if 'Dragon' in self.enemies[currEnemyIndex].mobTypes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.2
+                self.maxHits[setIndex, :] *= 1.2
+        self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
     
     def wildyWeaponsModifier(self, setIndex):
@@ -206,7 +227,6 @@ class DamageCalculator():
     
     #TODO: Update to increase accuracy cap in COX
     def tbowModifier(self, setIndex):
-        set = self.gearsets[setIndex]
         #Currently assumes all tbow usage is outside cox
         for currEnemyIndex in range(len(self.enemies)):
             magicCoeff = 3 * max(self.enemies[currEnemyIndex].getMagic(), self.enemies[currEnemyIndex].getMagicBonus())
@@ -239,15 +259,18 @@ class DamageCalculator():
             multiplier = 5
             
         self.attackRolls[setIndex, :]*= 1+ (0.005*multiplier)
+        self.maxHits[setIndex, :] *= 1 + (0.005*multiplier)
+        self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
             
     def tomeOfWaterModifier(self):
         pass
     
     def kerisPartisanOfBreachingModifier(self, setIndex):
-        set = self.gearsets[setIndex]
         for currEnemyIndex in range(len(self.enemies)):
             if 'Kalphite' in self.enemies[currEnemyIndex].mobTypes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.33
+                self.maxHits[setIndex, :] *= 1.33
+        self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
         
