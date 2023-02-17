@@ -66,7 +66,11 @@ class DamageCalculator():
             'Webweaver bow': self.wildyWeaponsModifier,
             'Arclight': self.arclightModifier,
             'Gadderhammer': self.gadderHammerModifier,
-            'Leaf bladed battleaxe': self.leafBladedBattleaxeModifier
+            'Leaf bladed battleaxe': self.leafBladedBattleaxeModifier,
+            'Toktz-xil-ek': self.obbyArmorModifier,
+            'Toktz-xil-ak': self.obbyArmorModifier,
+            'Tzhaar-ket-em': self.obbyArmorModifier,
+            'Tzhaar-ket-om': self.obbyArmorModifier
         }
         self.helperFunctionPreGearBonus = [self.potionBoosts, self.prayerBoosts, self.voidMageCheck, self.addStanceBonus, self.otherVoidCheck, self.factorInOffensiveGearBonuses]
         self.helperFunctionPostGearBonus = [self.salveModifier, self.slayerHelmModifier, self.demonbaneSpellsModifier, self.obbyArmorModifier, self.chinsModifier, self.inquisitorsModifier ,self.tomeOfWaterModifier, self.dharoksModifier, self.vampyreWeaponryCheck]
@@ -218,14 +222,31 @@ class DamageCalculator():
             magicCoeff = 3 * max(self.enemies[currEnemyIndex].getMagic(), self.enemies[currEnemyIndex].getMagicBonus())
             if magicCoeff > 750:
                 magicCoeff = 750
-            scalar = 140 + int((magicCoeff-10)/100) - int((((magicCoeff/10)-100)**2)/100)
-            self.attackRolls[setIndex, currEnemyIndex] *= (scalar/100.0)
+            accuracyScalar = min(140,140 + int((magicCoeff-10)/100) - int((((magicCoeff/10)-100)**2)/100))         
+            damageScalar = min(250,250 + int((magicCoeff-14)/100) - int((((magicCoeff/10)-140)**2)/100))
+            self.attackRolls[setIndex, currEnemyIndex] *= (accuracyScalar/100.0)
+            self.maxHits[setIndex, currEnemyIndex] *= (damageScalar/100.0)
         
         self.attackRolls = np.floor(self.attackRolls)
                 
     def obbyArmorModifier(self, setIndex):
-        pass
+        set =  self.gearsets[setIndex]
+        if set.getItemInSlot(GEAR_SLOTS.HEAD) == 'Obsidian helmet' \
+           and set.getItemInSlot(GEAR_SLOTS.BODY) == 'Obsidian platebody' \
+           and set.getItemInSlot(GEAR_SLOTS.LEGS) == 'Obsidian platelegs':
+            self.maxHits[setIndex, :] *= 1.1
+            self.attackRolls[setIndex, :] *= 1.1
+            
+        self.maxHits = np.floor(self.maxHits)
+        self.attackRolls = np.floor(self.attackRolls)
+        
+        
+        if set.getItemInSlot(GEAR_SLOTS.NECK) == 'Berserker necklace':
+            self.maxHits[setIndex, :] *= 1.2
     
+        self.maxHits = np.floor(self.maxHits)
+    
+    #will work on once I have context information
     def chinsModifier(self, setIndex):
         pass
     
