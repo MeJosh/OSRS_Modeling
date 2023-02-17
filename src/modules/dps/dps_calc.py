@@ -2,7 +2,7 @@ import numpy as np
 from ...vault.player import Player
 from ...vault.monster import Monster
 from ...vault.gearset import GearSet
-from ...vault.constants import GEAR_STATS, GEAR_SLOTS, ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL, ATTACK_TYPE_TO_BONUS_MAP, ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL, ATTACK_STYLE_TO_GEAR_STRENGTH
+from ...vault.constants import GEAR_STATS, GEAR_SLOTS, ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL, ATTACK_TYPE_TO_BONUS_MAP, ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL, ATTACK_STYLE_TO_GEAR_STRENGTH, ATTACK_STYLE_TYPE_TO_MONSTER_DEFENCE_TYPE
 
 ATTACK_STANCE_MODIFIER = {
     'attack': {
@@ -46,7 +46,7 @@ class DamageCalculator():
         #Each row is for an individual item set against all enemies
         self.attackRolls = None
         self.maxHits = None
-        self.defenseRolls = [] 
+        self.defenseRolls = None 
         
         self.weaponAccuracyRollModifiers = {
             'Crystal bow': self.crystalArmorModifier,
@@ -62,7 +62,8 @@ class DamageCalculator():
             'Thammaron\'s scepter': self.wildyWeaponsModifier,
             'Accrused sceptre': self.wildyWeaponsModifier,
             'Ursine chainmace': self.wildyWeaponsModifier,
-            'Webweaver bow': self.wildyWeaponsModifier
+            'Webweaver bow': self.wildyWeaponsModifier,
+            'Arclight': self.arclightModifier
         }
     
         self.CalculateDPS()
@@ -71,13 +72,21 @@ class DamageCalculator():
     def CalculateDPS(self):
         attackRolls = []
         maxHits = []
+        defRolls = []
         for set in self.gearsets:
             #TODO: Replace instances of 'ranged', 'mage', and ('Stab', 'Slash', 'Crush') with constants everywhere
             attackRolls.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL[set.getStyleType()])  for i in range(len(self.enemies))])
             maxHits.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL[set.getStyleType()]) for i in range(len(self.enemies))])
+            temp = []
+            for enemy in self.enemies:
+                temp.append((9+enemy.getSkillLevel('defense'))*(64+enemy.getBonus(ATTACK_STYLE_TYPE_TO_MONSTER_DEFENCE_TYPE[set.getStyleType()])))
+            defRolls.append(temp)
+                
+        print('Defense rolls', defRolls)      
         
         self.attackRolls = np.array(attackRolls)
         self.maxHits = np.array(maxHits)
+        self.defenseRolls = np.array(defRolls)
         
         for i in range(len(self.attackRolls)):
             #Skipping boosts and prayers for now, but leaving a comment here to indicate that
@@ -194,7 +203,7 @@ class DamageCalculator():
         if not set.getItemInSlot(GEAR_SLOTS.NECK) == 'Salve amulet':
             return
         for currEnemyIndex in range(len(self.enemies)):
-            if 'Undead' in self.enemies[currEnemyIndex].mobTypes:
+            if 'Undead' in self.enemies[currEnemyIndex].attributes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.2
                 self.maxHits[setIndex, :] *= 1.2
         self.maxHits = np.floor(self.maxHits)
@@ -208,15 +217,15 @@ class DamageCalculator():
     
     def dhcbModifier(self, setIndex):
         for currEnemyIndex in range(len(self.enemies)):
-            if 'Dragon' in self.enemies[currEnemyIndex].mobTypes:
+            if 'Dragon' in self.enemies[currEnemyIndex].attributes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.3                
-                self.maxHits[setIndex, :] *= 1.3
+                self.maxHits[setIndex, :] *= 1.25
         self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
     
     def lanceModifier(self, setIndex):
         for currEnemyIndex in range(len(self.enemies)):
-            if 'Dragon' in self.enemies[currEnemyIndex].mobTypes:
+            if 'Dragon' in self.enemies[currEnemyIndex].attributes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.2
                 self.maxHits[setIndex, :] *= 1.2
         self.maxHits = np.floor(self.maxHits)
@@ -268,9 +277,38 @@ class DamageCalculator():
     
     def kerisPartisanOfBreachingModifier(self, setIndex):
         for currEnemyIndex in range(len(self.enemies)):
-            if 'Kalphite' in self.enemies[currEnemyIndex].mobTypes:
+            if 'Kalphite' in self.enemies[currEnemyIndex].attributes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.33
                 self.maxHits[setIndex, :] *= 1.33
         self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
         
+    def arclightModifier(self, setIndex):
+        for currEnemyIndex in range(len(self.enemies)):
+            if 'Demon' in self.enemies[currEnemyIndex].attributes:
+                self.attackRolls[setIndex, currEnemyIndex] *= 1.7
+                self.maxHits[setIndex, :] *= 1.7
+        self.maxHits = np.floor(self.maxHits)
+        self.attackRolls = np.floor(self.attackRolls)
+        
+
+    def vampyreWeaponryCheck(self, setIndex):
+        pass
+    
+    #Need to sort out boost structure first, as currentHp will reside in that object
+    def dharoksModifier(self, setIndex):
+        pass
+    
+    #Need to sort out configuration stuff, as s
+    def leafBladedBattleaxeModifier(self, setIndex):
+        for idx, enemy in enumerate(self.enemies):
+            if enemy == 'Kurask' or enemy == 'Turoth':
+                self.maxHits[setIndex, idx] *= 1.175
+        self.maxHits = np.floor(self.maxHits)
+        
+    def garrerHammerModifier(self, setIndex):
+        for idx, enemy in enumerate(self.enemies):
+            if 'Shade' in enemy.attributes:
+                self.maxHits[setIndex, idx] *= 1.25
+        self.maxHits = np.floor(self.maxHits)
+                

@@ -11,7 +11,7 @@ class Monster():
         return self.name
 
     def __eq__(self, other) -> bool:
-        return self.name == other.name
+        return self.name == other
 
     def getSkillLevel(self, skill) -> int:
         return DEFAULT_LEVEL_VALUE if not hasattr(self, "skills") or skill.lower() not in self.skills.keys() else self.skills[skill.lower()]
