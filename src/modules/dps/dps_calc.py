@@ -36,7 +36,7 @@ ATTACK_STANCE_MODIFIER = {
     }
 }
 
-
+STANDARD_SPELLS = ['Fire wave']
 class DamageCalculator():
     def __init__(self, player: Player, enemies: list[Monster], gearsets: list[GearSet]):
         self.player = player
@@ -56,6 +56,7 @@ class DamageCalculator():
             'Keris partisan of breaching': self.kerisPartisanOfBreachingModifier,
             'Twisted bow': self.tbowModifier,
             'Mystic smoke staff': self.mysticSmokeStaffModifier,
+            'Smoke battlestaff': self.mysticSmokeStaffModifier,
             'Tumeken\'s shadow': self.tumekensShadowModifier,
             'Viggora\'s chainmace': self.wildyWeaponsModifier,
             'Craw\'s bow': self.wildyWeaponsModifier,
@@ -63,83 +64,55 @@ class DamageCalculator():
             'Accrused sceptre': self.wildyWeaponsModifier,
             'Ursine chainmace': self.wildyWeaponsModifier,
             'Webweaver bow': self.wildyWeaponsModifier,
-            'Arclight': self.arclightModifier
+            'Arclight': self.arclightModifier,
+            'Gadderhammer': self.gadderHammerModifier,
+            'Leaf bladed battleaxe': self.leafBladedBattleaxeModifier
         }
+        self.helperFunctionPreGearBonus = [self.potionBoosts, self.prayerBoosts, self.voidMageCheck, self.addStanceBonus, self.otherVoidCheck, self.factorInOffensiveGearBonuses]
+        self.helperFunctionPostGearBonus = [self.salveModifier, self.slayerHelmModifier, self.demonbaneSpellsModifier, self.obbyArmorModifier, self.chinsModifier, self.inquisitorsModifier ,self.tomeOfWaterModifier, self.dharoksModifier, self.vampyreWeaponryCheck]
     
-        self.CalculateDPS()
+        self.CalculateDPSConstants()
         
         
-    def CalculateDPS(self):
+    def CalculateDPSConstants(self):
         attackRolls = []
         maxHits = []
         defRolls = []
         for set in self.gearsets:
-            #TODO: Replace instances of 'ranged', 'mage', and ('Stab', 'Slash', 'Crush') with constants everywhere
             attackRolls.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL[set.getStyleType()])  for i in range(len(self.enemies))])
             maxHits.append([self.player.getStat(ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL[set.getStyleType()]) for i in range(len(self.enemies))])
             temp = []
             for enemy in self.enemies:
                 temp.append((9+enemy.getSkillLevel('defense'))*(64+enemy.getBonus(ATTACK_STYLE_TYPE_TO_MONSTER_DEFENCE_TYPE[set.getStyleType()])))
-            defRolls.append(temp)
-                
-        print('Defense rolls', defRolls)      
+            defRolls.append(temp)   
         
         self.attackRolls = np.array(attackRolls)
         self.maxHits = np.array(maxHits)
         self.defenseRolls = np.array(defRolls)
         
         for i in range(len(self.attackRolls)):
-            #Skipping boosts and prayers for now, but leaving a comment here to indicate that
-            self.potionBoosts()
-            self.prayerBoosts()
             
-            #Checking for void mage accuracy buffs
-            self.voidMageCheck(i)
-            print (self.maxHits)
+            for helperFunc in self.helperFunctionPreGearBonus:
+                helperFunc(i)
             
-            #Applying effective level booost from attack stance
-            self.addStanceBonus(i)
-            print (self.maxHits)
-            
-            self.otherVoidCheck(i)
-            print (self.maxHits)
-            
-            #Calculate initial rolls, before equipment modifiers
-            self.factorInOffensiveGearBonuses(i)
-            
-            print (self.maxHits)
             if (self.gearsets[i].getItemInSlot(GEAR_SLOTS.WEAPON).name in self.weaponAccuracyRollModifiers):
                 self.weaponAccuracyRollModifiers[self.gearsets[i].getItemInSlot(GEAR_SLOTS.WEAPON)](i)
-            print (self.maxHits)
-            #salve
-            self.salveModifier(i)
             
-            #slayer helm
-            self.slayerHelmModifier()
-            
-            #demonbane spells check
-            self.demonbaneSpellsModifier()
-            
-            #obsidian armor
-            self.obbyArmorModifier()
-            
-            #chins
-            self.chinsModifier()
-            
-            #inquisitor
-            self.inquisitorsModifier(i)
-            
-            #tome of water
-            self.tomeOfWaterModifier()
-        print (self.attackRolls)
-        print (self.maxHits)
+            for helperFunc in self.helperFunctionPostGearBonus:
+                helperFunc(i)
         
           
-    def prayerBoosts(self):
+    def prayerBoosts(self, setIndex):
         pass
     
-    def potionBoosts(self):
+    def potionBoosts(self, setIndex):
         pass
+    
+    def brimstoneRingModifier(self, setIndex):
+        if not set.getItemInSlot(GEAR_SLOTS.RING) == 'Brimstone ring':
+            return
+        self.defenseRolls *= 0.975
+        self.defenseRolls = np.floor(self.defenseRolls)
         
     def voidMageCheck(self, setIndex):
         set = self.gearsets[setIndex]
@@ -177,11 +150,15 @@ class DamageCalculator():
         self.maxHits[setIndex,:] =0.5 + self.maxHits[setIndex,:]*(64+self.gearsets[setIndex].getBonus(ATTACK_STYLE_TO_GEAR_STRENGTH[styleType])) / 640
         self.maxHits = np.floor(self.maxHits)
          
+    #TODO Only considers enemies to be outside of TOA
     def tumekensShadowModifier(self, setIndex):
-        pass
+        self.attackRolls[setIndex, :] *= 3
 
     def mysticSmokeStaffModifier(self, setIndex):
-        pass
+        if not self.gearsets[setIndex].getItemInSlot(GEAR_SLOTS.AMMUNITION).name in STANDARD_SPELLS:
+            return
+        self.attackRolls[setIndex] *= 1.1
+        self.attackRolls = np.floor(self.attackRolls)
     
     def crystalArmorModifier(self, setIndex):
         set = self.gearsets[setIndex]
@@ -209,15 +186,15 @@ class DamageCalculator():
         self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
 
-    def slayerHelmModifier(self):
+    def slayerHelmModifier(self, setIndex):
         pass
     
-    def demonbaneSpellsModifier(self):
+    def demonbaneSpellsModifier(self, setIndex):
         pass
     
     def dhcbModifier(self, setIndex):
         for currEnemyIndex in range(len(self.enemies)):
-            if 'Dragon' in self.enemies[currEnemyIndex].attributes:
+            if 'Draconic' in self.enemies[currEnemyIndex].attributes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.3                
                 self.maxHits[setIndex, :] *= 1.25
         self.maxHits = np.floor(self.maxHits)
@@ -225,7 +202,7 @@ class DamageCalculator():
     
     def lanceModifier(self, setIndex):
         for currEnemyIndex in range(len(self.enemies)):
-            if 'Dragon' in self.enemies[currEnemyIndex].attributes:
+            if 'Draconic' in self.enemies[currEnemyIndex].attributes:
                 self.attackRolls[setIndex, currEnemyIndex] *= 1.2
                 self.maxHits[setIndex, :] *= 1.2
         self.maxHits = np.floor(self.maxHits)
@@ -246,10 +223,10 @@ class DamageCalculator():
         
         self.attackRolls = np.floor(self.attackRolls)
                 
-    def obbyArmorModifier(self):
+    def obbyArmorModifier(self, setIndex):
         pass
     
-    def chinsModifier(self):
+    def chinsModifier(self, setIndex):
         pass
     
     def inquisitorsModifier(self, setIndex):
@@ -272,8 +249,13 @@ class DamageCalculator():
         self.maxHits = np.floor(self.maxHits)
         self.attackRolls = np.floor(self.attackRolls)
             
-    def tomeOfWaterModifier(self):
-        pass
+    def tomeOfWaterModifier(self, setIndex):
+        if not self.gearsets[setIndex].getItemInSlot(GEAR_SLOTS.SHIELD) == 'Tome of water' \
+            or not self.gearsets[setIndex].getItemInSlot(GEAR_SLOTS.AMMUNITION).name in ('Water Strike', 'Water bolt', 'Water blast', 'Water wave', 'Water surge')\
+            or not self.gearsets[setIndex].getItemInSlot(GEAR_SLOTS.WEAPON).getStyleType() == 'Magic':
+            return
+        
+        self.attackRolls[setIndex, :] *= 1.2
     
     def kerisPartisanOfBreachingModifier(self, setIndex):
         for currEnemyIndex in range(len(self.enemies)):
@@ -299,14 +281,13 @@ class DamageCalculator():
     def dharoksModifier(self, setIndex):
         pass
     
-    #Need to sort out configuration stuff, as s
     def leafBladedBattleaxeModifier(self, setIndex):
         for idx, enemy in enumerate(self.enemies):
             if enemy == 'Kurask' or enemy == 'Turoth':
                 self.maxHits[setIndex, idx] *= 1.175
         self.maxHits = np.floor(self.maxHits)
         
-    def garrerHammerModifier(self, setIndex):
+    def gadderHammerModifier(self, setIndex):
         for idx, enemy in enumerate(self.enemies):
             if 'Shade' in enemy.attributes:
                 self.maxHits[setIndex, idx] *= 1.25
