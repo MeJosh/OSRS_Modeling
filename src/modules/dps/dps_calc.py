@@ -2,7 +2,7 @@ import numpy as np
 from ...vault.player import Player
 from ...vault.monster import Monster
 from ...vault.gearset import GearSet
-from ...vault.constants import GEAR_STATS, GEAR_SLOTS, ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL, ATTACK_TYPE_TO_BONUS_MAP, ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL, ATTACK_STYLE_TO_GEAR_STRENGTH, ATTACK_STYLE_TYPE_TO_MONSTER_DEFENCE_TYPE
+from ...vault.constants import GEAR_SLOTS, ATTACK_STYLE_TYPE_TO_ACCURACY_SKILL, ATTACK_TYPE_TO_BONUS_MAP, ATTACK_STYLE_TYPE_TO_STRENGTH_SKILL, ATTACK_STYLE_TO_GEAR_STRENGTH, ATTACK_STYLE_TYPE_TO_MONSTER_DEFENCE_TYPE
 
 ATTACK_STANCE_MODIFIER = {
     'attack': {
@@ -47,6 +47,9 @@ class DamageCalculator():
         self.attackRolls = None
         self.maxHits = None
         self.defenseRolls = None 
+        
+        self.accuracies = None
+        self.dps = None
         
         self.weaponAccuracyRollModifiers = {
             'Crystal bow': self.crystalArmorModifier,
@@ -314,3 +317,26 @@ class DamageCalculator():
                 self.maxHits[setIndex, idx] *= 1.25
         self.maxHits = np.floor(self.maxHits)
                 
+
+    def calculateAccuracy(self, maxAttackRoll, maxDefenseRoll):
+        
+        if maxAttackRoll > maxDefenseRoll:
+            return 1 - (maxDefenseRoll + 2) / (2*(maxAttackRoll + 1))
+        return (maxAttackRoll / (2 * (maxDefenseRoll + 1)))
+
+    def calculateDPS(self):
+        
+        #TODO calculate offensive passive effets such as keris breaching effect here
+        
+        self.accuracies = np.zeros((len(self.gearsets), len(self.enemies)))
+        self.dps = np.zeros((len(self.gearsets), len(self.enemies)))
+        for gearIdx, gearSet in enumerate(self.gearsets):
+            for enemyIdx, enemy in enumerate(self.enemies):
+                
+                #A few checks here in circumstances where accuracy check is ignored (IE set the value to 1) based on enemy, weapon
+                self.accuracies[gearIdx, enemyIdx] = self.calculateAccuracy(self.attackRolls[gearIdx, enemyIdx], self.defenseRolls[gearIdx, enemyIdx])
+                
+                self.dps[gearIdx, enemyIdx] = self.accuracies[gearIdx, enemyIdx] * self.maxHits[gearIdx, enemyIdx] / 2
+                
+                
+        
