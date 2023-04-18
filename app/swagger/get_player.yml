@@ -1,0 +1,27 @@
+---
+summary: Get player by name
+description: Retrieve a player from the MongoDB database by name
+parameters:
+  - name: name
+    in: path
+    required: true
+    description: Name of the player to retrieve
+    schema:
+      type: string
+      example: "John Doe"
+responses:
+  200:
+    description: Player retrieved successfully
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        data:
+          type: string
+          example: "Some data"
+  404:
+    description: Player not found
+  500:
+    description: Error retrieving player from database

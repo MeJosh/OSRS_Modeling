@@ -1,0 +1,37 @@
+---
+summary: Update player by name
+description: Update a player in the MongoDB database by name
+parameters:
+  - name: name
+    in: path
+    required: true
+    description: Name of the player to update
+    schema:
+      type: string
+      example: "John Doe"
+  - name: body
+    in: body
+    required: true
+    description: JSON object containing updated player data
+    schema:
+      type: object
+      properties:
+        data:
+          type: string
+          example: "Some updated data"
+responses:
+  200:
+    description: Player updated successfully
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        data:
+          type: string
+          example: "Some updated data"
+  404:
+    description: Player not found
+  500:
+    description: Error updating player in database

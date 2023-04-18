@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+    environment:
+      MONGO_URI: mongodb://db:27017/mydatabase
+    command: flask run --host=0.0.0.0 --port=5000 --reload
+
+  db:
+    image: mongo
+    volumes:
+      - "./data:/data/db"

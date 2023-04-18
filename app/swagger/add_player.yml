@@ -1,0 +1,33 @@
+---
+summary: Add a new player
+description: Add a new player to the MongoDB database
+parameters:
+  - name: body
+    in: body
+    required: true
+    description: JSON object containing player data
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        data:
+          type: string
+          example: "Some data"
+responses:
+  201:
+    description: Player added successfully
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        data:
+          type: string
+          example: "Some data"
+  400:
+    description: Invalid request body
+  500:
+    description: Error adding player to database

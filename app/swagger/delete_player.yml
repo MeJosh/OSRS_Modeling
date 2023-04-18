@@ -1,0 +1,18 @@
+---
+summary: Delete player by name
+description: Delete a player from the MongoDB database by name
+parameters:
+  - name: name
+    in: path
+    required: true
+    description: Name of the player to delete
+    schema:
+      type: string
+      example: "John Doe"
+responses:
+  200:
+    description: Player deleted successfully
+  404:
+    description: Player not found
+  500:
+    description: Error deleting player from database
